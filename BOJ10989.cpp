@@ -1,3 +1,5 @@
+// 시간초과를 해결하기 위해 counting sort 사용 
+// 그러나 케이스통과는 하지 못함.
 #include <iostream>
 using namespace std;
 
