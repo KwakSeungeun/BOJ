@@ -1,129 +1,87 @@
 #include <iostream>
 #include <vector>
+#include <stack>
 #include <queue>
 using namespace std;
-int N, M, result;
-int dirX[4] = {0,1,0,-1};
-int dirY[4] = {1,0,-1,0};
-struct Node {
-	int val;
-	int x, y;
-};
 
-int count(vector<vector<Node>> src) {
-	int count = 0;
+int N, M;
+vector<vector<int>> area(8, vector<int>(8));
+vector<vector<int>> temp(8, vector<int>(8));
+int result = 0;
+const int dx[] = {0,1,0,-1};
+const int dy[] = {1,0,-1,0};
+
+void spreadVirus(vector<vector<int>> spreaded_area) {
+	queue<pair<int, int>> q; 
 	for (int i = 0; i < N; i++) {
 		for (int j = 0; j < M; j++) {
-			if (src[i][j].val == 0) count++;
+			if (spreaded_area[i][j] == 2) q.push(pair<int, int>(i, j));
 		}
 	}
-	return count;
-}
-
-
-void print(vector<vector<Node>> src) {
-	cout << "------------------------------------\n";
-	for (int i = 0; i < N; i++) {
-		for (int j = 0; j < M; j++) {
-			cout << src[i][j].val << " ";
-		}
-		cout << "\n";
-	}
-}
-
-void spread(vector<vector<Node>> &src, int srcX, int srcY, int size, int row, int col ) {
-	for (int k = 1; k < size; k++) {
-		int x = srcX + k * row;
-		int y = srcY + k * col;
-		if (x < 0 || x >= N || y < 0 || y >= N) continue;
-
-		if (src[x][y].val != 1) {
-			src[x][y].val = 2;
-		}
-		else if (src[x][y].val == 1) {
-			return;
-		}
-	}
-}
-
-// 바이러스 퍼짐
-int getSafeArea(vector<vector<Node>> src) {
-	vector<vector<bool>> visited(N, vector<bool>(M, false));
-	queue<Node> q;
-
-	q.push(src[0][0]);
-	visited[0][0] = true;
-
-	Node curNode;
+	int curX, curY, curVal;
 	while (!q.empty()) {
-		curNode = q.front();
+		curX = q.front().first;
+		curY = q.front().second;
 		q.pop();
 		for (int i = 0; i < 4; i++) {
-			int x = curNode.x + dirX[i];
-			int y = curNode.y + dirY[i];
-			if (x < 0 || x >= N || y < 0 || y >= N) continue;
-			if (!visited[x][y]) {
-				q.push(src[x][y]);
-				visited[x][y] = true;
-				if (src[x][y].val == 2) {
-					// 상하좌우로 퍼져나감
-					for (int k = 0; k < 4; k++) {
-						if(dirX[k] == 0) spread(src, x, y,N, dirX[k], dirY[k]);
-						else spread(src, x, y, M, dirX[k], dirY[k]);
-					}
-				}
+			int nextX = curX + dx[i];
+			int nextY = curY + dy[i];
+			if (nextX < 0 || nextX >= N || nextY < 0 || nextY >= M)	continue;
+			if (spreaded_area[nextX][nextY] == 0) {
+				q.push(pair<int, int>(nextX, nextY));
+				spreaded_area[nextX][nextY] = 2;
 			}
 		}
 	}
-	print(src);
-	return count(src);
+
+	int safe_area = 0;
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			if (spreaded_area[i][j] == 0) safe_area++;
+		}
+	}
+	result = max(result, safe_area);
 }
 
-// 0위치에 벽 세개 세우기
-void solution(vector<vector<Node>> src) {
-	vector<vector<bool>> visited(N, vector<bool>(M, false));
-	queue<Node> q;
-
-	q.push(src[0][0]);
-	visited[0][0] = true;
-
-	Node curNode;
-	int wallCount = 0;
-	while (!q.empty()){
-		curNode = q.front();
-		q.pop();
-		for (int i = 0; i < 4; i++) {
-			int x = curNode.x + dirX[i];
-			int y = curNode.y + dirY[i];
-			if (x < 0 || x >= N || y < 0 || y >= N) continue;
-			if (!visited[x][y]) {
-				q.push(src[x][y]);
-				visited[x][y] = true;
-				if (src[x][y].val == 0) {
-					wallCount++;
-					src[x][y].val = 1;
-					if (wallCount >= 3) break;
-				}
+void makeWall(int cnt){
+	if (cnt == 3){
+		spreadVirus(temp);
+		return;
+	}
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			if (temp[i][j] == 0){
+				temp[i][j] = 1;
+				makeWall(cnt + 1);
+				temp[i][j] = 0;
 			}
 		}
-		if (wallCount >= 3) break;
 	}
-	print(src);
-	result = getSafeArea(src);
 }
 
 int main() {
-	cin >> N >> M;
-	int temp = -1;
-	vector<vector<Node>> area(N);
-
+	cin >> N;
+	cin >> M;
 	for (int i = 0; i < N; i++) {
-;		for (int j = 0; j < M; j++) {
-			cin >> temp;
-			area[i].push_back(Node{ temp, i, j });
+		for (int j = 0; j < M; j++) {
+			cin >> area[i][j];
 		}
 	}
-	solution(area);
+
+	for (int i = 0; i < N; i++) {
+		for (int j = 0; j < M; j++) {
+			if (area[i][j] == 0){
+				for (int k = 0; k < N; k++) {
+					for (int l = 0; l < M; l++) {
+						temp[k][l] = area[k][l];
+					}
+				}
+				temp[i][j] = 1;
+				makeWall(1);
+				temp[i][j] = 0;
+			}
+		}
+	}
 	cout << result;
 	return 0;
 }
