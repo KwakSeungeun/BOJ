@@ -9,16 +9,13 @@ int result;
 
 void solution(int loc, int dir,bool left_flag, bool right_flag) {
 	if (loc < 0 || loc >3) return;
-	// ¿ÞÂÊ
 	if (loc - 1 >= 0 && left_flag) {
 		if (src[loc - 1].at(2) != src[loc].at(6)) solution(loc-1, dir*(-1),true, false);
 	}
-	//¿À¸¥ÂÊ
 	if (loc + 1 < 4 && right_flag) {
 		if (src[loc + 1].at(6) != src[loc].at(2)) solution(loc + 1, dir*(-1),false,true);
 	}
 
-	//È¸Àü
 	string temp;
 	if (dir == 1) {
 		temp = src[loc].at(7);
@@ -44,7 +41,7 @@ int main() {
 	}
 	int result = 0;
 	for (int i = 0; i < 4; i++) {
-		if (src[i].at(0) == '0') continue; //N±Ø
+		if (src[i].at(0) == '0') continue;
 		result += pow(2, i);
 	}
 	cout << result;
