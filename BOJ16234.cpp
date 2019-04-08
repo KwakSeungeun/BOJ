@@ -1,6 +1,7 @@
 // .clear()는 단순히 삭제만 해주는 것 ! 그래서 이걸로 비어있는지 확인하려면 .empty()x .size로 판단하기!
-// group!!
+// group!! =>  이중 for문으로 계속 돌고 거기서 bfs/dfs로 순환하며 group을 찾고 (조건에 맞는 경우만 visitied true and )
 // 2차원 vector사용시 임시로 list만들어 줘서 넣어줘도 됨!
+// 순차적인 실행에 대해 고민해보기
 #include <iostream>
 #include <queue>
 #include <vector>
